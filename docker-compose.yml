@@ -1,0 +1,74 @@
+version: '3.7'
+
+services:
+  hng-db:
+    image: traefik:v2.4
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+
+  frontend:
+    build:
+      context: ./frontend
+    labels:
+      - "traefik.http.routers.frontend.rule=PathPrefix(`/`)"
+      - "traefik.http.services.frontend.loadbalancer.server.port=80"
+    depends_on:
+      - backend
+      - postgres
+    env_file:
+      - ./frontend/.env
+    volumes:
+      - ./frontend:/app
+      - node_modules:/usr/src/app/node_modules
+
+  backend:
+    build:
+      context: ./backend
+    volumes: 
+      - ./backend:/code
+    labels:
+      - "traefik.http.routers.backend.rule=PathPrefix(`/api`)"
+      - "traefik.http.services.backend.loadbalancer.server.port=8000"
+      - "traefik.http.routers.docs.rule=PathPrefix(`/docs`)"
+      - "traefik.http.services.docs.loadbalancer.server.port=8000"
+    depends_on:
+      - postgres
+      - hng-db
+    env_file:
+      - ./backend/.env
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgres://default:l4bUL6vTEQgZ@ep-silent-snowflake-a4s15wi7-pooler.us-east-1.aws.neon.tech:5432/verceldb
+
+  postgres:
+    image: postgres:13
+    hostname: postgres
+    environment:
+      POSTGRES_USER: default
+      POSTGRES_PASSWORD: l4bUL6vTEQgZ
+      POSTGRES_DB: verceldb
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file:
+      - ./backend/.env
+
+  adminer:
+    image: adminer
+    ports:
+      - "8081:8080"
+    labels:
+      - "traefik.http.routers.adminer.rule=Host(`db.domain`)"
+    depends_on:
+      - hng-db
+
+volumes:
+  postgres_data:
+  node_modules:

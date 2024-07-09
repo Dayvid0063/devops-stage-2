@@ -5,6 +5,9 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 
+# Load environment variables from .env file
+load_dotenv()
+
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
@@ -17,22 +20,17 @@ fileConfig(config.config_file_name)
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-# target_metadata = None
-
 from app.models import SQLModel  # noqa
-
 target_metadata = SQLModel.metadata
 
-load_dotenv()
-
 def get_url():
-    user = os.getenv("POSTGRES_USER", "postgres")
-    password = os.getenv("POSTGRES_PASSWORD", "")
-    server = os.getenv("POSTGRES_SERVER", "db")
+    user = os.getenv("POSTGRES_USER", "default")
+    password = os.getenv("POSTGRES_PASSWORD", "l4bUL6vTEQgZ")
+    server = os.getenv("POSTGRES_SERVER", "ep-silent-snowflake-a4s15wi7-pooler.us-east-1.aws.neon.tech")
     port = os.getenv("POSTGRES_PORT", "5432")
-    db = os.getenv("POSTGRES_DB", "app")
+    db = os.getenv("POSTGRES_DB", "verceldb")
 
-    return f"postgresql+psycopg://{user}:{password}@{server}:{port}/{db}"
+    return f"postgresql+psycopg2://{user}:{password}@{server}:{port}/{db}"
 
 
 def run_migrations_offline():
@@ -45,7 +43,6 @@ def run_migrations_offline():
 
     Calls to context.execute() here emit the given string to the
     script output.
-
     """
     url = get_url()
     context.configure(
@@ -55,13 +52,11 @@ def run_migrations_offline():
     with context.begin_transaction():
         context.run_migrations()
 
-
 def run_migrations_online():
     """Run migrations in 'online' mode.
 
     In this scenario we need to create an Engine
     and associate a connection with the context.
-
     """
     configuration = config.get_section(config.config_ini_section)
     configuration["sqlalchemy.url"] = get_url()
@@ -78,7 +73,6 @@ def run_migrations_online():
 
         with context.begin_transaction():
             context.run_migrations()
-
 
 if context.is_offline_mode():
     run_migrations_offline()

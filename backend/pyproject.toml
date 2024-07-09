@@ -27,6 +27,8 @@ pydantic-settings = "^2.2.1"
 sentry-sdk = {extras = ["fastapi"], version = "^1.40.6"}
 pyjwt = "^2.8.0"
 python-dotenv = "^1.0.1"
+fastapi-cors = "^0.0.6"
+psycopg2-binary = "^2.9.9"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.3"
