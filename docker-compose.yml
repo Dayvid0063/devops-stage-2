@@ -29,7 +29,7 @@ services:
     image: postgres:13
     environment:
       POSTGRES_USER: default
-      POSTGRES_PASSWORD: l4bUL6vTEQgZ
+      POSTGRES_PASSWORD: ol4bUL6vTEQgZ
       POSTGRES_DB: verceldb
     volumes:
       - postgres_data:/var/lib/postgresql/data
