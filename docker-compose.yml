@@ -12,6 +12,7 @@ services:
     depends_on:
       - frontend
       - backend
+      - npm
 
   frontend:
     build:
@@ -39,5 +40,14 @@ services:
     ports:
       - "8080:8080"
 
+  npm:
+    image: jc21/nginx-proxy-manager:latest
+    ports:
+      - "8090:81"
+    volumes:
+      - ./data:/data
+      - ./letsencrypt:/etc/letsencrypt
+
 volumes:
   postgres_data:
+
